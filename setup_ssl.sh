@@ -81,3 +81,5 @@ echo "您的文件存放在 VPS 的: /var/www/html 目录下"
 echo "现在可以用 https://$DOMAIN/ 访问您的脚本了。"
 echo "========================================="
 EOF
+
+chmod +x /root/setup_ssl.sh
