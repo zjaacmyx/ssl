@@ -1,11 +1,17 @@
-cat << 'EOF' > /root/setup_ssl.sh
 #!/bin/bash
 set -e
 
 echo "========================================="
 echo "    天诚复印机经营部 - VPS 证书一键配置"
 echo "========================================="
-read -p "请输入您要配置的域名 (例如 vpu.baby): " DOMAIN
+
+# 核心修改：优先获取命令后面的第一个参数作为域名，如果没有传参，再弹出提示让人输入
+if [ -n "$1" ]; then
+    DOMAIN="$1"
+    echo "已通过参数指定域名: $DOMAIN"
+else
+    read -p "请输入您要配置的域名 (例如 vpu.baby): " DOMAIN
+fi
 
 if [ -z "$DOMAIN" ]; then 
     echo "错误：域名不能为空！"
@@ -32,7 +38,6 @@ fi
 echo ""
 echo "====> [3/3] 正在全自动写入双通道 Nginx 配置文件..."
 
-# 使用 cat 一口气写入支持 域名HTTPS + 纯IP直通 的完整配置
 cat << 'NET_EOF' > /etc/nginx/sites-available/default
 # 1. 域名的 HTTP 自动强转 HTTPS
 server {
@@ -70,7 +75,6 @@ server {
 }
 NET_EOF
 
-# 将配置文件里的占位符精准替换为用户输入的域名
 sed -i "s/MY_DOMAIN_PLACEHOLDER/$DOMAIN/g" /etc/nginx/sites-available/default
 
 echo ""
@@ -83,6 +87,3 @@ echo "您的文件存放在 VPS 的: /var/www/html 目录下"
 echo "-> 域名加密通道: https://$DOMAIN/menu.bat"
 echo "-> 纯IP备用通道: http://你的VPS_IP/menu.bat"
 echo "========================================="
-EOF
-
-chmod +x /root/setup_ssl.sh
